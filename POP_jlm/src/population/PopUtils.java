@@ -1,7 +1,7 @@
 package population;
 
 public class PopUtils {
-
+//	based on JTMT-3C ABM Main Output File Structure
 	public static String ActivityType(int i) {
 		String actResult = null;
 		switch (i) {

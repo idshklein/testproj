@@ -26,7 +26,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 public class PopCreator {
 
 	public static void main(String[] args) {
-
+//		TODO create local database through java
 		String url = "jdbc:postgresql://localhost:5432/postgres";
 		String user = "postgres";
 		String password = "matsim";
@@ -45,33 +45,29 @@ public class PopCreator {
 			Network network = sc.getNetwork();
 			Population population = sc.getPopulation();
 			PopulationFactory populationFactory = population.getFactory();
+//			useless definition of person and plan
 			Person person = populationFactory.createPerson(Id.create("1", Person.class));
-//			population.addPerson(person);
 			Plan plan = populationFactory.createPlan();
-//			Coord homeCoordinates = new Coord(14.31377, 51.76948);
-//			Activity activity1 = populationFactory.createActivityFromCoord("home", homeCoordinates);
-//			activity1.setEndTime(21600); // leave at 6 o'clock
-//			plan.addActivity(activity1); // add the Activity to the Plan
-//			plan.addLeg(populationFactory.createLeg("car"));
-//			person.addPlan(plan);
 			int i = 0;
 			while (rs.next()) {
+//				creating a new person if one started
 				if (rs.getInt("personTripNum") == 1) {
 					String agentId = rs.getString("hhid") + "-" + rs.getString("pnum");
 					person = populationFactory.createPerson(Id.create(agentId, Person.class));
 					population.addPerson(person);
 					plan = populationFactory.createPlan();
 				}
-
+//				getting parameters from table
 				Coord origCoordinates = new Coord(rs.getDouble("origX"), rs.getDouble("origY"));
 				String actType = PopUtils.ActivityType(rs.getInt("origPurp"));
 				double endTime = rs.getDouble("finalDepartMinute") * 60 + 10800;
 				String mode = PopUtils.Mode(rs.getInt("modeCode"));
-
+//				adding activity and leg
 				Activity activity = populationFactory.createActivityFromCoord(actType, origCoordinates);
 				activity.setEndTime(endTime);
 				plan.addActivity(activity);
 				plan.addLeg(populationFactory.createLeg(mode));
+//				last activity - adding person to population
 				if (rs.getInt("personTripNum") == rs.getInt("lastTripNum")) {
 					Coord destCoordinates = new Coord(rs.getDouble("destX"), rs.getDouble("destY"));
 					actType = PopUtils.ActivityType(rs.getInt("destPurp"));
@@ -82,6 +78,7 @@ public class PopCreator {
 				System.out.println(i);
 				i++;
 			}
+//			writing to file
 			MatsimWriter popWriter = new PopulationWriter(population, network);
 			popWriter.write("D:/Users/User/Dropbox/matsim_begin/population.xml");
 
